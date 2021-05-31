@@ -1,6 +1,10 @@
 This is Hibernate oriented!
 E.g. it uses org.hibernate.annotations.Immutable
 
+Make PostgreSQL database and user:
+$ su - postgres
+$ psql -f [path to beige-springboot/psql-cr-user-db.sql]
+
 Build from root folder:
 $ mvn clean install
 
