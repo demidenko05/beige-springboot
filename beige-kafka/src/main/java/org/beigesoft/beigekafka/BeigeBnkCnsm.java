@@ -6,8 +6,14 @@ import java.util.function.Consumer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+//import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+/*import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Isolation;*/
 
 @Configuration
+//@EnableTransactionManagement
 public class BeigeBnkCnsm {
 
   private BnkPaymJsnSrv bnkPaymJsnSrv;
@@ -17,6 +23,7 @@ public class BeigeBnkCnsm {
   }
 
   @Bean
+  //@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
   public Consumer<BnkPaymJsn> recievePayment() {
     return (bpayj) -> {
       try {

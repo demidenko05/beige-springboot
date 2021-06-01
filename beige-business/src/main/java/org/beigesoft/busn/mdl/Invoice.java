@@ -10,13 +10,16 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class Invoice extends AEntIdLnga {
 
   @ManyToOne
+  @NotNull
   private Custm custm;
 
+  @NotNull
   private BigDecimal tot = BigDecimal.ZERO;
 
   //bad approach (embedded changeable field)

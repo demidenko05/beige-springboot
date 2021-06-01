@@ -1,21 +1,17 @@
-package org.beigesoft.beigekafka;
+package org.beigesoft.bservice1;
 
-//import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
-
-@SpringBootApplication(exclude={JdbcTemplateAutoConfiguration.class})
-//@Configuration
+@SpringBootApplication
 @EnableTransactionManagement
 @ComponentScan(basePackages={"org.beigesoft"})
-public class BeigeKafkaApplication {
+public class BeigeService1Application {
 
   public static void main(String[] args) {
-    SpringApplication.run(BeigeKafkaApplication.class, args);
+    SpringApplication.run(BeigeService1Application.class, args);
   }
 }

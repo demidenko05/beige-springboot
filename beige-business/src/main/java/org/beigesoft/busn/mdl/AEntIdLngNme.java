@@ -3,12 +3,14 @@ package org.beigesoft.busn.mdl;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Column;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @MappedSuperclass
 public abstract class AEntIdLngNme extends AEntIdLng {
 
   @Column
   @NotEmpty
+  @NotNull
   private String nme;
 
   //Simple getters and setters:

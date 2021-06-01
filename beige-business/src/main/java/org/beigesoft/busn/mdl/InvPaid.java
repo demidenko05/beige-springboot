@@ -6,14 +6,17 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
+import javax.validation.constraints.NotNull;
 
-//good approach for registering invoice total payment
+//good approach for registering total payment for immutable (at current phase) invoice
 @Entity
 public class InvPaid extends AEntIdLnga {
 
   @OneToOne(fetch = FetchType.LAZY)
+  @NotNull
   private Invoice inv;
 
+  @NotNull
   private BigDecimal totPaid = BigDecimal.ZERO;
 
   //Simple getters and setters:

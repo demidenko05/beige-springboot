@@ -3,22 +3,27 @@ package org.beigesoft.busn.mdl;
 import java.math.BigDecimal;
 
 import javax.persistence.Entity;
-//import javax.validation.constraints.NotEmpty;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class InvLn extends AEntIdLnga {
 
   @ManyToOne
+  @NotNull
   private Invoice ownr;
 
   @ManyToOne
+  @NotNull
   private Itm itm;
 
+  @NotNull
   private BigDecimal pri = BigDecimal.ZERO;
 
+  @NotNull
   private BigDecimal quan = BigDecimal.ZERO;
 
+  @NotNull
   private BigDecimal tot = BigDecimal.ZERO;
 
   //Simple getters and setters:

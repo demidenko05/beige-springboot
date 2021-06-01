@@ -82,6 +82,11 @@ public class TstEagerQuSrv {
   }
 
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+  public Invoice findInvoice(BigDecimal pTot) throws Exception {
+    return this.invoiceRep.findByTot(pTot);
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
   public void deleteInvoice(Invoice pInv) throws Exception {
     this.invoiceRep.delete(pInv);
     this.custmRep.delete(pInv.getCustm());

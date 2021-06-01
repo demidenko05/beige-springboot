@@ -2,21 +2,46 @@ package org.beigesoft.busn.mdl;
 
 import java.math.BigDecimal;
 
-import org.hibernate.annotations.Immutable;
 import javax.persistence.Entity;
-//import javax.validation.constraints.NotEmpty;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.Immutable;
 
 @Entity
 @Immutable
-public class BnkPaym extends AEntIdLng {
+public class BnkPaym extends AEntIdLnga {
+
+  @NotNull
+  private Long paymId; //from JSON
 
   @ManyToOne
+  //Null if not found by ID
   private Invoice invc;
 
+  @NotNull
   private BigDecimal tot;
 
+  //if invoice or customer is wrong then report:
+  private String dscrErr;
+
   //Simple getters and setters:
+  /**
+   * <p>Getter for paymId.</p>
+   * @return Long
+   **/
+  public Long getPaymId() {
+    return this.paymId;
+  }
+
+  /**
+   * <p>Setter for paymId.</p>
+   * @param pPaymId reference
+   **/
+  public void setPaymId(final Long pPaymId) {
+    this.paymId = pPaymId;
+  }
+
   /**
    * <p>Getter for invc.</p>
    * @return Invoice
@@ -47,5 +72,21 @@ public class BnkPaym extends AEntIdLng {
    **/
   public void setTot(final BigDecimal pTot) {
     this.tot = pTot;
+  }
+
+  /**
+   * <p>Getter for dscrErr.</p>
+   * @return String
+   **/
+  public String getDscrErr() {
+    return this.dscrErr;
+  }
+
+  /**
+   * <p>Setter for dscrErr.</p>
+   * @param pDscrErr reference
+   **/
+  public void setDscrErr(String pDscrErr) {
+    this.dscrErr = pDscrErr;
   }
 }

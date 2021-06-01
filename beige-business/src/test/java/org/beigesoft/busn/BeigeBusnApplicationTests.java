@@ -120,4 +120,23 @@ COMMIT
     assertThat(il.getOwnr().getCustm().getNme()).isNotNull();
     this.tstEagerQuSrv.deleteInvoice(inv);
   }
+
+  @Test
+  //populate DB wth sample data for live tests:
+  void populDb() throws Exception {
+/*
+100.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
+         - beige-bservice changes invoice.descr
+         - they use read-committed level
+to trigger this live test type in kafka-console-producer:
+>{"paymId":"1","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"1","totalAmount":"100.77"}
+*/
+    BigDecimal tot = new BigDecimal("100.77");
+    Invoice inv = this.tstEagerQuSrv.findInvoice(tot);
+    if (inv == null) {
+      inv = this.tstEagerQuSrv.createInv(28200000192299L, "OOO berezka",
+      new String[] {"Product generic"}, new BigDecimal[] {tot});
+      inv = this.tstEagerQuSrv.saveInvoice(inv);
+    }
+  }
 }
