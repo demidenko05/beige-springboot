@@ -35,13 +35,24 @@ Preventing dirty writing transactions:
 4. The last resort is Isolation.SERIALIZABLE
 5. Pessimistic locking should be avoided
 
-Tests beige-business also populate database with sample invoices, the total of an invoice indicates which "live test" will be invoked:
-100.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid TODO!!! can't get transactional annotated service work!!!??? It splits into two transactions - save bnk-pay and invoice
+Run in beige-business to populate database with sample invoices (it's also invoked on mvn clean install):
+$ mvn spring-boot:run -Dspring-boot.run.arguments="--populDb=true"
+the total of a sample invoice indicates which "live test" will be invoked:
+
+a) wrong approach - two services writes the same entity (invoice.totalPaid and invoice.descr):
+100.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
          - beige-bservice changes invoice.descr
          - they use read-committed level
 to trigger this live test type in kafka-console-producer:
 >{"paymId":"1","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"1","totalAmount":"100.77"}
   of course, one of services will rollback because of org.hibernate.StaleObjectStateException
+
+101.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
+         - beige-bservice changes invoice.descr
+         - they use SERIALIZABLE level
+to trigger this live test type in kafka-console-producer:
+>{"paymId":"2","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"2","totalAmount":"101.77"}
+  org.postgresql.util.PSQLException: ERROR: could not serialize access due to concurrent update
 
 Eager optimal retrieving by queries.
 Hibernate authors are little bit aggravated about eager default JPA standard (Hibernate_User_Guide.html#best-practices-fetching):
@@ -66,37 +77,3 @@ $ cat /var/log/postgresql/postgresql-11-main.log
 
 This is PostgreSQL oriented.
 see /usr/share/doc/postgresql-doc-11/html/transaction-iso.html: ...i.e., PostgreSQL's Read Uncommitted mode behaves like Read Committed...
-
-
--------------------------------
-Problem transactional annotated services (e.g. beige-kafka...BnkPaymJsnSrv) do not start transaction! Each CrudRepo.save() start and commit its own transaction!
-
-But tests e.g. beige-business...TstEagerQuSrv.saveInvoice(...) work fine:
-BEGIN
-insert into custm (ver, nme, id) values ($1, $2, $3)
-parameters: $1 = '0', $2 = 'OOO Orel', $3 = '28209288899'
-insert into itm (ver, nme) values ($1, $2)
-DETAIL:  parameters: $1 = '0', $2 = 'Product 1'
-insert into itm (ver, nme) values ($1, $2)
-parameters: $1 = '0', $2 = 'Service 1'
-insert into invoice (ver, custm_id, descr, tot, tot_paid) values ($1, $2, $3, $4, $5)
-...
-COMMIT
-They say: https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.java-config
-...The Spring Data JPA repositories support can be activated not only through an XML namespace but also by using an annotation through JavaConfig, as shown in the following example:
-
-Example 55. Spring Data JPA repositories using JavaConfig
-@Configuration
-@EnableJpaRepositories
-@EnableTransactionManagement
-class ApplicationConfig {
-
-  @Bean
-  public DataSource dataSource() {
-
-    EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-    return builder.setType(EmbeddedDatabaseType.HSQL).build();
-  }
-...
-BUT CRUDRepo.save() already transactional annotated and auto-configured!
-Services (that use several repo) must be autoconfigurable! Not only TESTS!!

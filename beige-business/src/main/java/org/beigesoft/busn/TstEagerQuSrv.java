@@ -18,8 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Isolation;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @Service
 public class TstEagerQuSrv {
 
@@ -34,6 +32,39 @@ public class TstEagerQuSrv {
 
   @Autowired
   private CustmRep custmRep;
+
+  //populate DB wth sample data for live tests:
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+  public void populDb() throws Exception {
+/*
+100.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
+         - beige-bservice changes invoice.descr
+         - they use read-committed level
+to trigger this live test type in kafka-console-producer:
+>{"paymId":"1","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"1","totalAmount":"100.77"}
+*/
+    BigDecimal tot = new BigDecimal("100.77");
+    Invoice inv = findInvoice(tot);
+    if (inv == null) {
+      inv = createInv(28200000192299L, "OOO berezka",
+      new String[] {"Product generic"}, new BigDecimal[] {tot});
+      inv = saveInvoice(inv);
+    }
+    Custm custm = inv.getCustm();
+    Itm itm = inv.getItsLns().get(0).getItm();
+/*101.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
+         - beige-bservice changes invoice.descr
+         - they use SERIALIZABLE level
+to trigger this live test type in kafka-console-producer:
+>{"paymId":"2","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"2","totalAmount":"101.77"}
+*/
+    tot = new BigDecimal("101.77");
+    inv = findInvoice(tot);
+    if (inv == null) {
+      inv = createInv2(custm, new Itm[] {itm}, new BigDecimal[] {tot});
+      inv = saveInvoice(inv);
+    }
+  }
 
   public Invoice createInv(long pCustId, String pCustNm, String[] pItmsNms, BigDecimal[] pPris) {
     Custm cust = new Custm();

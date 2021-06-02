@@ -30,29 +30,6 @@ public class BService1Srv {
   @Autowired
   private InvoiceRep invoiceRep;
 
-  public void mkPayment(BnkPaymJsn pBnkPayJsn) throws Exception {
-/*
-100.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
-         - beige-bservice changes invoice.descr
-         - they use read-committed level
-to trigger this live test type in kafka-console-producer:
->{"paymId":"1","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"1","totalAmount":"100.77"}
-*/
-    this.logger.info("Get bank payment #" + pBnkPayJsn.getPaymId()
-      + ", total=" + pBnkPayJsn.getTotalAmount() + ", invoice#" + pBnkPayJsn.getInvoiceId());
-    BigDecimal tott1 = new BigDecimal("100.77");
-    if (pBnkPayJsn.getTotalAmount().equals(tott1)) {
-      try {
-        Thread.currentThread().sleep(1000L);
-      } catch (Exception ex) {
-        ex.printStackTrace();
-      }
-      mkTst1(pBnkPayJsn);
-    } else {
-      this.logger.info("Non-test bank payment!!!");
-    }
-  }
-
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
   public void mkTst1(BnkPaymJsn pBnkPayJsn) throws Exception {
     Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
@@ -62,7 +39,22 @@ to trigger this live test type in kafka-console-producer:
     inv.setDescr("BService1 " + new Date());
     this.invoiceRep.save(inv);
     try {
-      Thread.currentThread().sleep(1000L);
+      Thread.sleep(1000L);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public void mkTst2(BnkPaymJsn pBnkPayJsn) throws Exception {
+    Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
+    if (inv == null) {
+      throw new Exception("Database is not populated for this test total " + pBnkPayJsn.getTotalAmount());
+    }
+    inv.setDescr("BService1 " + new Date());
+    this.invoiceRep.save(inv);
+    try {
+      Thread.sleep(1000L);
     } catch (Exception ex) {
       ex.printStackTrace();
     }

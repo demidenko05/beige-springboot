@@ -9,6 +9,7 @@ import org.beigesoft.busn.mdl.Invoice;
 import org.beigesoft.busn.mdl.InvLn;
 import org.beigesoft.busn.mdl.Itm;
 import org.beigesoft.busn.mdl.Custm;
+import org.beigesoft.busn.mdl.BnkPaymJsn;
 import org.beigesoft.busn.repo.CustmRep;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ class BeigeBusnApplicationTests {
 
   @Autowired
   private TstEagerQuSrv tstEagerQuSrv;
+
+  @Autowired
+  private BnkPaymJsnSrv bnkPaymJsnSrv;
 
   @Test
   //@Transactional
@@ -122,21 +126,20 @@ COMMIT
   }
 
   @Test
-  //populate DB wth sample data for live tests:
-  void populDb() throws Exception {
-/*
-100.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
-         - beige-bservice changes invoice.descr
-         - they use read-committed level
-to trigger this live test type in kafka-console-producer:
->{"paymId":"1","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"1","totalAmount":"100.77"}
-*/
-    BigDecimal tot = new BigDecimal("100.77");
-    Invoice inv = this.tstEagerQuSrv.findInvoice(tot);
-    if (inv == null) {
-      inv = this.tstEagerQuSrv.createInv(28200000192299L, "OOO berezka",
-      new String[] {"Product generic"}, new BigDecimal[] {tot});
-      inv = this.tstEagerQuSrv.saveInvoice(inv);
-    }
+  //JUST TO demonstrate that spring-boot-starter-test can autoconfigurate transactional services:
+  void test4() throws Exception {
+    this.tstEagerQuSrv.populDb();
+  }
+
+  //@Test
+  //JUST TO demonstrate that spring-boot-starter-test can autoconfigurate transactional services:
+  void test5() throws Exception {
+    BnkPaymJsn bpayj = new BnkPaymJsn();
+    bpayj.setPaymId(1L);
+    bpayj.setInvoiceId(1L);
+    bpayj.setCustmId(28200000192299L);
+    bpayj.setCustmNme("OOO berezka");
+    bpayj.setTotalAmount(new BigDecimal("100.77"));
+    this.bnkPaymJsnSrv.mkTst1(bpayj);
   }
 }

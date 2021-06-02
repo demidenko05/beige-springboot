@@ -1,4 +1,4 @@
-package org.beigesoft.beigekafka;
+package org.beigesoft.busn;
 
 import org.beigesoft.busn.mdl.BnkPaymJsn;
 import org.beigesoft.busn.mdl.BnkPaym;
@@ -14,18 +14,12 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-//import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Isolation;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-//@Configuration
-//@EnableTransactionManagement
 @Service
-//@Repository
 public class BnkPaymJsnSrv {
 
   private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
@@ -36,28 +30,6 @@ public class BnkPaymJsnSrv {
   @Autowired
   private InvoiceRep invoiceRep;
 
-  public void mkPayment(BnkPaymJsn pBnkPayJsn) throws Exception {
-/*
-100.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
-         - beige-bservice changes invoice.descr
-         - they use read-committed level
-to trigger this live test type in kafka-console-producer:
->{"paymId":"1","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"1","totalAmount":"100.77"}
-*/
-    BigDecimal tott1 = new BigDecimal("100.77");
-    if (pBnkPayJsn.getTotalAmount().equals(tott1)) {
-      try {
-        Thread.currentThread().sleep(1000L);
-      } catch (Exception ex) {
-        ex.printStackTrace();
-      }
-      mkTst1(pBnkPayJsn);
-    } else {
-      mkPaymentWrk(pBnkPayJsn);
-    }
-  }
-
-  //do not start transaction!!!!!!
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
   public void mkTst1(BnkPaymJsn pBnkPayJsn) throws Exception {
     Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
@@ -68,20 +40,43 @@ to trigger this live test type in kafka-console-producer:
     bp.setTot(pBnkPayJsn.getTotalAmount());
     bp.setPaymId(pBnkPayJsn.getPaymId());
     bp.setInvc(inv);
-    bp = this.bnkPaymRep.save(bp); //TODO???? it start and commits here????
+    bp = this.bnkPaymRep.save(bp);
     this.logger.info("Saved bank payment #" + bp.getId() + ", payment#" + bp.getPaymId()
       + ", paid=" + bp.getTot() + ", invoice#" + pBnkPayJsn.getInvoiceId()
         + "/" + bp.getInvc());
     inv.setTotPaid(this.bnkPaymRep.selectSumTot(inv));
     this.invoiceRep.save(inv);
     try {
-      Thread.currentThread().sleep(1000L);
+      Thread.sleep(1000L);
     } catch (Exception ex) {
       ex.printStackTrace();
     }
   }
 
-  @Transactional
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public void mkTst2(BnkPaymJsn pBnkPayJsn) throws Exception {
+    Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
+    if (inv == null) {
+      throw new Exception("Database is not populated for this test total " + pBnkPayJsn.getTotalAmount());
+    }
+    BnkPaym bp = new BnkPaym();
+    bp.setTot(pBnkPayJsn.getTotalAmount());
+    bp.setPaymId(pBnkPayJsn.getPaymId());
+    bp.setInvc(inv);
+    bp = this.bnkPaymRep.save(bp);
+    this.logger.info("Saved bank payment #" + bp.getId() + ", payment#" + bp.getPaymId()
+      + ", paid=" + bp.getTot() + ", invoice#" + pBnkPayJsn.getInvoiceId()
+        + "/" + bp.getInvc());
+    inv.setTotPaid(this.bnkPaymRep.selectSumTot(inv));
+    this.invoiceRep.save(inv);
+    try {
+      Thread.sleep(500L);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
   public void mkPaymentWrk(BnkPaymJsn pBnkPayJsn) throws Exception {
     BnkPaym bp = new BnkPaym();
     bp.setTot(pBnkPayJsn.getTotalAmount());
@@ -109,7 +104,7 @@ to trigger this live test type in kafka-console-producer:
    * <p>Getter for bnkPaymRep.</p>
    * @return BnkPaymRep
    **/
-  public final BnkPaymRep getBnkPaymRep() {
+  public BnkPaymRep getBnkPaymRep() {
     return this.bnkPaymRep;
   }
 
@@ -117,7 +112,7 @@ to trigger this live test type in kafka-console-producer:
    * <p>Setter for bnkPaymRep.</p>
    * @param pBnkPaymRep reference
    **/
-  public final void setBnkPaymRep(final BnkPaymRep pBnkPaymRep) {
+  public void setBnkPaymRep(BnkPaymRep pBnkPaymRep) {
     this.bnkPaymRep = pBnkPaymRep;
   }
 
@@ -125,7 +120,7 @@ to trigger this live test type in kafka-console-producer:
    * <p>Getter for invoiceRep.</p>
    * @return InvoiceRep
    **/
-  public final InvoiceRep getInvoiceRep() {
+  public InvoiceRep getInvoiceRep() {
     return this.invoiceRep;
   }
 
@@ -133,7 +128,7 @@ to trigger this live test type in kafka-console-producer:
    * <p>Setter for invoiceRep.</p>
    * @param pInvoiceRep reference
    **/
-  public final void setInvoiceRep(final InvoiceRep pInvoiceRep) {
+  public void setInvoiceRep(InvoiceRep pInvoiceRep) {
     this.invoiceRep = pInvoiceRep;
   }
 }
