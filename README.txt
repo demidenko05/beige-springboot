@@ -54,6 +54,27 @@ to trigger this live test type in kafka-console-producer:
 >{"paymId":"2","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"2","totalAmount":"101.77"}
   org.postgresql.util.PSQLException: ERROR: could not serialize access due to concurrent update
 
+b) good approach - two services writes their own entities (Invoice and InvPaid):
+102.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid
+         - beige-bservice changes invoice.descr and invoice.totalPaid
+         - they use read-committed level
+to trigger this live test type in kafka-console-producer:
+>{"paymId":"2","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"2","totalAmount":"102.77"}
+  there is no error. But invoice.totalPaid might have outdated data, e.g. after second time logs:
+  beige-kafka - invPaid.totPaid=205.54
+  beige.business - invoce.totPaid=102.77, invoce.invPaid.totPaid=102.77
+
+103.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid
+         - beige-bservice changes invoice.descr and invoice.totalPaid
+         - they use SERIALIZABLE level
+to trigger this live test type in kafka-console-producer:
+>{"paymId":"3","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"3","totalAmount":"103.77"}
+  org.postgresql.util.PSQLException: ERROR: could not serialize access due to read/write dependencies among transactions
+  Detail: Reason code: Canceled on identification as a pivot, during write.
+
+Conclusion - optimistic locking and read-committed allows outdated reads, but this is good approach any way.
+To ensure that a report isn't outdated AT THE INVOCATION TIME - use serializable, and this is a special case, i.e. not for pagination.
+
 Eager optimal retrieving by queries.
 Hibernate authors are little bit aggravated about eager default JPA standard (Hibernate_User_Guide.html#best-practices-fetching):
 "...Prior to JPA, Hibernate used to have all associations as LAZY by default. However, when JPA 1.0 specification emerged, it was thought that not all providers would use Proxies. Hence, the @ManyToOne and the @OneToOne associations are now EAGER by default...."

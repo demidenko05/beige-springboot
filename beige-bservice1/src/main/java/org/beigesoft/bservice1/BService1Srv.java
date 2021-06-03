@@ -60,6 +60,46 @@ public class BService1Srv {
     }
   }
 
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+  public void mkTst3(BnkPaymJsn pBnkPayJsn) throws Exception {
+    Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
+    if (inv == null) {
+      throw new Exception("Database is not populated for this test total " + pBnkPayJsn.getTotalAmount());
+    }
+    inv.setDescr("BService1 " + new Date());
+    inv.setTotPaid(this.bnkPaymRep.selectSumTot(inv));
+    this.invoiceRep.save(inv);
+    logger.info("invoce.totPaid=" + inv.getTotPaid());
+    if (inv.getInvPaid() != null) {
+      logger.info("invoce.invPaid.totPaid=" + inv.getInvPaid().getTotPaid());
+    }
+    try {
+      Thread.sleep(1000L);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public void mkTst4(BnkPaymJsn pBnkPayJsn) throws Exception {
+    Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
+    if (inv == null) {
+      throw new Exception("Database is not populated for this test total " + pBnkPayJsn.getTotalAmount());
+    }
+    inv.setDescr("BService1 " + new Date());
+    inv.setTotPaid(this.bnkPaymRep.selectSumTot(inv));
+    this.invoiceRep.save(inv);
+    logger.info("invoce.totPaid=" + inv.getTotPaid());
+    if (inv.getInvPaid() != null) {
+      logger.info("invoce.invPaid.totPaid=" + inv.getInvPaid().getTotPaid());
+    }
+    try {
+      Thread.sleep(1000L);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+
   //Simple getters and setters:
   /**
    * <p>Getter for bnkPaymRep.</p>

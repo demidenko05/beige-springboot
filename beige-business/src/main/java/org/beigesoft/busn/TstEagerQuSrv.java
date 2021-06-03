@@ -64,6 +64,31 @@ to trigger this live test type in kafka-console-producer:
       inv = createInv2(custm, new Itm[] {itm}, new BigDecimal[] {tot});
       inv = saveInvoice(inv);
     }
+/*102.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid
+         - beige-bservice changes invoice.descr and invoice.totalPaid
+         - they use read-committed level
+to trigger this live test type in kafka-console-producer:
+>{"paymId":"2","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"2","totalAmount":"102.77"}
+*/
+    tot = new BigDecimal("102.77");
+    inv = findInvoice(tot);
+    if (inv == null) {
+      inv = createInv2(custm, new Itm[] {itm}, new BigDecimal[] {tot});
+      inv = saveInvoice(inv);
+    }
+/*
+103.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid
+         - beige-bservice changes invoice.descr and invoice.totalPaid
+         - they use SERIALIZABLE level
+to trigger this live test type in kafka-console-producer:
+>{"paymId":"3","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"3","totalAmount":"103.77"}
+ */
+    tot = new BigDecimal("103.77");
+    inv = findInvoice(tot);
+    if (inv == null) {
+      inv = createInv2(custm, new Itm[] {itm}, new BigDecimal[] {tot});
+      inv = saveInvoice(inv);
+    }
   }
 
   public Invoice createInv(long pCustId, String pCustNm, String[] pItmsNms, BigDecimal[] pPris) {

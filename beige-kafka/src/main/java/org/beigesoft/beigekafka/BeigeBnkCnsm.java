@@ -35,9 +35,12 @@ public class BeigeBnkCnsm {
          - they use read-committed level
 to trigger this live test type in kafka-console-producer:
 >{"paymId":"1","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"1","totalAmount":"100.77"}
+... see README.txt
 */
     BigDecimal tott1 = new BigDecimal("100.77");
     BigDecimal tott2 = new BigDecimal("101.77");
+    BigDecimal tott3 = new BigDecimal("102.77");
+    BigDecimal tott4 = new BigDecimal("103.77");
     try {
       Thread.sleep(1000L);
     } catch (Exception ex) {
@@ -47,6 +50,10 @@ to trigger this live test type in kafka-console-producer:
       this.bnkPaymJsnSrv.mkTst1(pBnkPayJsn);
     } else if (pBnkPayJsn.getTotalAmount().equals(tott2)) {
       this.bnkPaymJsnSrv.mkTst2(pBnkPayJsn);
+    } else if (pBnkPayJsn.getTotalAmount().equals(tott3)) {
+      this.bnkPaymJsnSrv.mkTst3(pBnkPayJsn);
+    } else if (pBnkPayJsn.getTotalAmount().equals(tott4)) {
+      this.bnkPaymJsnSrv.mkTst4(pBnkPayJsn);
     } else {
       this.bnkPaymJsnSrv.mkPaymentWrk(pBnkPayJsn);
     }

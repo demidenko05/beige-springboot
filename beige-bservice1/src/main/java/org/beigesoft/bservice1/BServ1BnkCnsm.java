@@ -40,11 +40,14 @@ public class BServ1BnkCnsm {
          - they use read-committed level
 to trigger this live test type in kafka-console-producer:
 >{"paymId":"1","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"1","totalAmount":"100.77"}
+... see README.txt
 */
     this.logger.info("Get bank payment #" + pBnkPayJsn.getPaymId()
       + ", total=" + pBnkPayJsn.getTotalAmount() + ", invoice#" + pBnkPayJsn.getInvoiceId());
     BigDecimal tott1 = new BigDecimal("100.77");
     BigDecimal tott2 = new BigDecimal("101.77");
+    BigDecimal tott3 = new BigDecimal("102.77");
+    BigDecimal tott4 = new BigDecimal("103.77");
     try {
       Thread.sleep(1000L);
     } catch (Exception ex) {
@@ -54,6 +57,10 @@ to trigger this live test type in kafka-console-producer:
       this.bService1Srv.mkTst1(pBnkPayJsn);
     } else if (pBnkPayJsn.getTotalAmount().equals(tott2)) {
       this.bService1Srv.mkTst2(pBnkPayJsn);
+    } else if (pBnkPayJsn.getTotalAmount().equals(tott3)) {
+      this.bService1Srv.mkTst3(pBnkPayJsn);
+    } else if (pBnkPayJsn.getTotalAmount().equals(tott4)) {
+      this.bService1Srv.mkTst4(pBnkPayJsn);
     } else {
       this.logger.info("Non-test bank payment!!!");
     }

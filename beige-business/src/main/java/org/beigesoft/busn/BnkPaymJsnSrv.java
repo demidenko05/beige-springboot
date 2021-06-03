@@ -3,8 +3,10 @@ package org.beigesoft.busn;
 import org.beigesoft.busn.mdl.BnkPaymJsn;
 import org.beigesoft.busn.mdl.BnkPaym;
 import org.beigesoft.busn.mdl.Invoice;
+import org.beigesoft.busn.mdl.InvPaid;
 import org.beigesoft.busn.repo.InvoiceRep;
 import org.beigesoft.busn.repo.BnkPaymRep;
+import org.beigesoft.busn.repo.InvPaidRep;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -29,6 +31,9 @@ public class BnkPaymJsnSrv {
 
   @Autowired
   private InvoiceRep invoiceRep;
+
+  @Autowired
+  private InvPaidRep invPaidRep;
 
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
   public void mkTst1(BnkPaymJsn pBnkPayJsn) throws Exception {
@@ -71,6 +76,64 @@ public class BnkPaymJsnSrv {
     this.invoiceRep.save(inv);
     try {
       Thread.sleep(500L);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+  public void mkTst3(BnkPaymJsn pBnkPayJsn) throws Exception {
+    Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
+    if (inv == null) {
+      throw new Exception("Database is not populated for this test total " + pBnkPayJsn.getTotalAmount());
+    }
+    BnkPaym bp = new BnkPaym();
+    bp.setTot(pBnkPayJsn.getTotalAmount());
+    bp.setPaymId(pBnkPayJsn.getPaymId());
+    bp.setInvc(inv);
+    bp = this.bnkPaymRep.save(bp);
+    this.logger.info("Saved bank payment #" + bp.getId() + ", payment#" + bp.getPaymId()
+      + ", paid=" + bp.getTot() + ", invoice#" + pBnkPayJsn.getInvoiceId()
+        + "/" + bp.getInvc());
+    InvPaid inPd = inv.getInvPaid();
+    if (inPd == null) {
+      inPd = new InvPaid();
+      inPd.setInv(inv);
+    }
+    inPd.setTotPaid(this.bnkPaymRep.selectSumTot(inv));
+    this.invPaidRep.save(inPd);
+    logger.info("invPaid.totPaid=" + inPd.getTotPaid());
+    try {
+      Thread.sleep(800L);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public void mkTst4(BnkPaymJsn pBnkPayJsn) throws Exception {
+    Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
+    if (inv == null) {
+      throw new Exception("Database is not populated for this test total " + pBnkPayJsn.getTotalAmount());
+    }
+    BnkPaym bp = new BnkPaym();
+    bp.setTot(pBnkPayJsn.getTotalAmount());
+    bp.setPaymId(pBnkPayJsn.getPaymId());
+    bp.setInvc(inv);
+    bp = this.bnkPaymRep.save(bp);
+    this.logger.info("Saved bank payment #" + bp.getId() + ", payment#" + bp.getPaymId()
+      + ", paid=" + bp.getTot() + ", invoice#" + pBnkPayJsn.getInvoiceId()
+        + "/" + bp.getInvc());
+    InvPaid inPd = inv.getInvPaid();
+    if (inPd == null) {
+      inPd = new InvPaid();
+      inPd.setInv(inv);
+    }
+    inPd.setTotPaid(this.bnkPaymRep.selectSumTot(inv));
+    this.invPaidRep.save(inPd);
+    logger.info("invPaid.totPaid=" + inPd.getTotPaid());
+    try {
+      Thread.sleep(900L);
     } catch (Exception ex) {
       ex.printStackTrace();
     }
@@ -130,5 +193,21 @@ public class BnkPaymJsnSrv {
    **/
   public void setInvoiceRep(InvoiceRep pInvoiceRep) {
     this.invoiceRep = pInvoiceRep;
+  }
+
+  /**
+   * <p>Getter for invPaidRep.</p>
+   * @return InvPaidRep
+   **/
+  public InvPaidRep getInvPaidRep() {
+    return this.invPaidRep;
+  }
+
+  /**
+   * <p>Setter for invPaidRep.</p>
+   * @param pInvPaidRep reference
+   **/
+  public void setInvPaidRep(InvPaidRep pInvPaidRep) {
+    this.invPaidRep = pInvPaidRep;
   }
 }

@@ -1,7 +1,3 @@
-drop table bnkpaym;
-drop table invpaid;
-drop table invln;
-
 drop table bnk_paym;
 drop table inv_paid;
 drop table inv_ln;
