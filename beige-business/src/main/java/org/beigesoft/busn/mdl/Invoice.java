@@ -31,7 +31,7 @@ public class Invoice extends AEntIdLnga {
   private List<InvLn> itsLns = new ArrayList<>();
 
   //non-owned entity (invoice services must not change it)
-  @OneToOne(mappedBy = "inv", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "inv", cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
   private InvPaid invPaid;
 
   //Simple getters and setters:

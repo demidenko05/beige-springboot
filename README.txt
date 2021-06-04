@@ -12,6 +12,7 @@ Download kafka and unpack:
 run kafka in different terminals:
 $ bin/zookeeper-server-start.sh config/zookeeper.properties
 $ bin/kafka-server-start.sh config/server.properties
+if kafka blame - address already in use, then stop h2 console
 
 Run beige-kafka:
 $ java -jar beige-kafka/target/beige-kafka-0.1-SNAPSHOT.jar
@@ -19,7 +20,7 @@ $ java -jar beige-kafka/target/beige-kafka-0.1-SNAPSHOT.jar
 To simulate simultaneous transactions run beige-bservice1 in another terminal:
 $ java -jar beige-bservice1/target/beige-bservice1-0.1-SNAPSHOT.jar
 
-Both services are triggered by kafka's topic bank-payment, simultaneity achieved also by Thread.sleep
+Both services are triggered by kafka's topic bank-payment, simultaneity is achieved also by Thread.sleep
 
 List current topics:
 $ bin/kafka-topics.sh --zookeeper localhost:2181 --list
@@ -62,7 +63,7 @@ to trigger this live test type in kafka-console-producer:
 >{"paymId":"2","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"2","totalAmount":"102.77"}
   there is no error. But invoice.totalPaid might have outdated data, e.g. after second time logs:
   beige-kafka - invPaid.totPaid=205.54
-  beige.business - invoce.totPaid=102.77, invoce.invPaid.totPaid=102.77
+  beige-bservice1 - invoce.totPaid=102.77, invoce.invPaid.totPaid=102.77
 
 103.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid
          - beige-bservice changes invoice.descr and invoice.totalPaid
@@ -98,3 +99,44 @@ $ cat /var/log/postgresql/postgresql-11-main.log
 
 This is PostgreSQL oriented.
 see /usr/share/doc/postgresql-doc-11/html/transaction-iso.html: ...i.e., PostgreSQL's Read Uncommitted mode behaves like Read Committed...
+
+MS Windows.
+install git-bash, gnupg, JDK (e.g. 11 from https://jdk.java.net/java-se-ri/11)
+it behaves as linux
+copy/install into your Windows home folder files from/same as Linux one: .bashrc, .gitconfig, .keystore, .gnupg, kafka, maven, ant, h2...
+use geany editor to keep UTF8 and LF line ending in source files
+git-bash has almost all unix commands - ls, grep, find, gawk, df, tar...
+It's not clear how to mount ext4 usb-stick yet, but "ls /dev" shows its partitions
+after installing PostgreSQL change in "C:\Program Files\PostgreSQL\[VER]\data\postgresql.conf" entry:
+client_encoding = UTF8		# actually, defaults to database
+psql might use 8-bit encording, so start power shell in "C:\Program Files\PostgreSQL\[VER]\scripts" then change code page:
+> cmd.exe /c chcp 1251
+then start runpsql.bat
+> .\runpsql.bat
+in psql make shure UTF8:
+# SHOW SERVER_ENCODING;
+create user and table:
+# \i C:/Users/[your name]/git/beige-springboot/psql-cr-user-db.sql
+list databases with encodings:
+# \l
+quit from psql
+# \q
+run git-bash, clone beige-springboot, change to it, run mvn clean install ...
+run another git-bush in h2/bin, start "sh h2.sh" and .bashrc must have entry:
+export H2DRIVERS=$HOME/.m2/repository/org/postgresql/postgresql/42.2.19/postgresql-42.2.19.jar
+run in console to check UTF8:
+insert into ITM (VER, NME)  values (0, 'Продукт АЩ ™');
+select * from ITM; 
+
+PROBLEMS:
+* can't start kafka neither in git-bash (sh) nor in power-shell (bat)
+ bat -  The input line is too long. The syntax of the command is incorrect.
+ sh -  Error opening log file ...
+ after moving kafka into C:\kafka power-shell works fine (git-bush gives that error):
+C:\kafka> .\bin\windows\zookeeper-server-start.bat config\zookeeper.properties
+C:\kafka> .\bin\windows\kafka-server-start.bat config\server.properties
+C:\kafka> .\bin\windows\kafka-topics.bat --zookeeper localhost:2181 --list
+C:\kafka> .\bin\windows\kafka-console-producer.bat --topic bank-payment --bootstrap-server localhost:9092
+
+* Windows doesn't allow file names such as: nul.xml, aux.txt, ???
+so git clone beige-blc will fail with error: invalid path 'src/main/resources/mysql/fldNmFs/nul.xml'
