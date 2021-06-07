@@ -28,6 +28,67 @@
     <java.version>8</java.version>
   </properties>
 
+  <profiles>
+    <profile>
+      <id>check</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>3.1.2</version>
+            <executions>
+              <execution>
+              <id>checkstyle</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-maven-plugin</artifactId>
+            <version>4.2.0</version>
+            <configuration>
+              <excludeFilterFile>findbug-exclude.xml</excludeFilterFile>
+            </configuration>
+            <executions>
+              <execution>
+              <id>spotbugs</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-pmd-plugin</artifactId>
+            <version>3.14.0</version>
+            <configuration>
+              <printFailingErrors>true</printFailingErrors>
+            </configuration>
+            <executions>
+              <execution>
+              <id>pmd</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
   <build>
     <plugins>
       <plugin>

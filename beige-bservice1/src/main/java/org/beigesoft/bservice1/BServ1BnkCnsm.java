@@ -48,6 +48,9 @@ to trigger this live test type in kafka-console-producer:
     BigDecimal tott2 = new BigDecimal("101.77");
     BigDecimal tott3 = new BigDecimal("102.77");
     BigDecimal tott4 = new BigDecimal("103.77");
+    BigDecimal tott5 = new BigDecimal("104.77");
+    BigDecimal tott6 = new BigDecimal("105.77");
+    BigDecimal tott7 = new BigDecimal("106.77");
     try {
       Thread.sleep(1000L);
     } catch (Exception ex) {
@@ -61,6 +64,21 @@ to trigger this live test type in kafka-console-producer:
       this.bService1Srv.mkTst3(pBnkPayJsn);
     } else if (pBnkPayJsn.getTotalAmount().equals(tott4)) {
       this.bService1Srv.mkTst4(pBnkPayJsn);
+    } else if (pBnkPayJsn.getTotalAmount().equals(tott7)) {
+      this.bService1Srv.mkTst6(pBnkPayJsn);
+    } else if (pBnkPayJsn.getTotalAmount().equals(tott5)
+      || pBnkPayJsn.getTotalAmount().equals(tott6)) {
+      int cntAtm = 0;
+      boolean isDn = false;
+      while (!isDn && cntAtm++ < 6) {
+        try {
+          this.bService1Srv.mkTst5(pBnkPayJsn);
+          isDn = true;
+        } catch (Exception ex) {
+          ex.printStackTrace();
+          Thread.sleep(1000L);
+        }
+      }
     } else {
       this.logger.info("Non-test bank payment!!!");
     }

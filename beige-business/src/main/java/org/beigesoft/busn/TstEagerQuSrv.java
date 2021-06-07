@@ -89,6 +89,27 @@ to trigger this live test type in kafka-console-producer:
       inv = createInv2(custm, new Itm[] {itm}, new BigDecimal[] {tot});
       inv = saveInvoice(inv);
     }
+
+    tot = new BigDecimal("104.77");
+    inv = findInvoice(tot);
+    if (inv == null) {
+      inv = createInv2(custm, new Itm[] {itm}, new BigDecimal[] {tot});
+      inv = saveInvoice(inv);
+    }
+
+    tot = new BigDecimal("105.77");
+    inv = findInvoice(tot);
+    if (inv == null) {
+      inv = createInv2(custm, new Itm[] {itm}, new BigDecimal[] {tot});
+      inv = saveInvoice(inv);
+    }
+
+    tot = new BigDecimal("106.77");
+    inv = findInvoice(tot);
+    if (inv == null) {
+      inv = createInv2(custm, new Itm[] {itm}, new BigDecimal[] {tot});
+      inv = saveInvoice(inv);
+    }
   }
 
   public Invoice createInv(long pCustId, String pCustNm, String[] pItmsNms, BigDecimal[] pPris) {

@@ -16,12 +16,12 @@ public class BeigeBusnApplication {
 
   private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     SpringApplication.run(BeigeBusnApplication.class, args);
   }
 
   @Bean
-  public CommandLineRunner populDb(TstEagerQuSrv pTstEagerQuSrv) {
+  public CommandLineRunner populDb(final TstEagerQuSrv pTstEagerQuSrv) {
     return (args) -> {
       for (String arg : args) {
         if (arg.contains("populDb")) {

@@ -42,14 +42,14 @@ the total of a sample invoice indicates which "live test" will be invoked:
 
 a) wrong approach - two services writes the same entity (invoice.totalPaid and invoice.descr):
 100.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
-         - beige-bservice changes invoice.descr
+         - beige-bservice1 changes invoice.descr
          - they use read-committed level
 to trigger this live test type in kafka-console-producer:
 >{"paymId":"1","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"1","totalAmount":"100.77"}
   of course, one of services will rollback because of org.hibernate.StaleObjectStateException
 
 101.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
-         - beige-bservice changes invoice.descr
+         - beige-bservice1 changes invoice.descr
          - they use SERIALIZABLE level
 to trigger this live test type in kafka-console-producer:
 >{"paymId":"2","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"2","totalAmount":"101.77"}
@@ -57,7 +57,7 @@ to trigger this live test type in kafka-console-producer:
 
 b) good approach - two services writes their own entities (Invoice and InvPaid):
 102.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid
-         - beige-bservice changes invoice.descr and invoice.totalPaid
+         - beige-bservice1 changes invoice.descr and invoice.totalPaid
          - they use read-committed level
 to trigger this live test type in kafka-console-producer:
 >{"paymId":"2","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"2","totalAmount":"102.77"}
@@ -66,15 +66,61 @@ to trigger this live test type in kafka-console-producer:
   beige-bservice1 - invoce.totPaid=102.77, invoce.invPaid.totPaid=102.77
 
 103.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid
-         - beige-bservice changes invoice.descr and invoice.totalPaid
+         - beige-bservice1 changes invoice.descr and invoice.totalPaid
          - they use SERIALIZABLE level
 to trigger this live test type in kafka-console-producer:
 >{"paymId":"3","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"3","totalAmount":"103.77"}
   org.postgresql.util.PSQLException: ERROR: could not serialize access due to read/write dependencies among transactions
   Detail: Reason code: Canceled on identification as a pivot, during write.
+TODO just report outdated PG13?
 
-Conclusion - optimistic locking and read-committed allows outdated reads, but this is good approach any way.
-To ensure that a report isn't outdated AT THE INVOCATION TIME - use serializable, and this is a special case, i.e. not for pagination.
+104.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid, read-committed level - never fail
+       - beige-bservice1 just reads invoce.invPaid.totPaid, SERIALIZABLE level
+         when error, then wait 1 sec and repeat up to 5 times
+
+to trigger this live test type in kafka-console-producer:
+>{"paymId":"4","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"4","totalAmount":"104.77"}
+  same as read-committed for both, i.e. beige-bservice1 never fail and reports outdated data
+
+105.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid
+       - beige-bservice1 just reads invoce.invPaid.totPaid
+         when error, then wait 1 sec and repeat up to 5 times
+       - they use SERIALIZABLE level
+
+to trigger this live test type in kafka-console-producer:
+>{"paymId":"5","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"5","totalAmount":"105.77"}
+  same as read-committed for both, i.e. beige-bservice1 never fail and reports outdated data
+  BUT when beige-bservice1 also writes invoice (as in 103.77 test) then:
+  beige-bservice1 will report exception, but try again until get up to date data, e.g. at first sending:
+  beige-kafka: invPaid.totPaid=105.77
+  beige-bservice1: invoce.invPaid.totPaid=105.77
+
+106.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid AND LOCKS THE INVOICE with LockModeType.PESSIMISTIC_WRITE!
+       - beige-bservice1 just reads invoce.invPaid.totPaid
+       - they use read-committed level
+
+to trigger this live test type in kafka-console-producer:
+>{"paymId":"6","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"6","totalAmount":"106.77"}
+  this test always gives up-to date readed data, e.g on 4-th invocation:
+  beige-kafka: invPaid.totPaid=427.08
+  beige-bservice1: invoce.invPaid.totPaid=427.08
+  but on 1-st invocation data outdated:
+  beige-kafka: invPaid.totPaid=106.77
+  beige-bservice1: invoce.invPaid=null
+  
+
+
+Conclusion
+Both read-committed and serializable allows outdated AT THE MOMENT reads.
+For this particular business-process where bank-payment service must not rollback at all, read-uncommited seems to be more reliable,
+i.e. it reads up-to date data (that must be commited ealier), and it's the cheapest isolation method, see file:///usr/share/doc/postgresql-doc-11/html/transaction-iso.html:
+"...In contrast, a Read Committed or Repeatable Read transaction which wants to ensure data consistency may need to take out a lock on an entire table, which could block other users attempting to use that table, or it may use SELECT FOR UPDATE or SELECT FOR SHARE which not only can block other transactions but cause disk access."
+
+To ensure that a report isn't outdated AT THE INVOCATION TIME in another transaction - only pessimistick locking work, serializable works only if reading transaction also writes.
+But this is seems to be excessive, because a report can be outdated at any moment.
+For this particular case ban-payment service should make/send the latest-updated report in another new transaction after registering the payment.
+
+Optimistic locking, separating write access to entities and read-committed/uncommitted is reliable method.
 
 Eager optimal retrieving by queries.
 Hibernate authors are little bit aggravated about eager default JPA standard (Hibernate_User_Guide.html#best-practices-fetching):
@@ -109,6 +155,7 @@ git-bash has almost all unix commands - ls, grep, find, gawk, df, tar...
 It's not clear how to mount ext4 usb-stick yet, but "ls /dev" shows its partitions
 after installing PostgreSQL change in "C:\Program Files\PostgreSQL\[VER]\data\postgresql.conf" entry:
 client_encoding = UTF8		# actually, defaults to database
+but PostgreSQL13.3 has UTF8 without it
 psql might use 8-bit encording, so start power shell in "C:\Program Files\PostgreSQL\[VER]\scripts" then change code page:
 > cmd.exe /c chcp 1251
 then start runpsql.bat

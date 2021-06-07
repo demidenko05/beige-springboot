@@ -41,6 +41,9 @@ to trigger this live test type in kafka-console-producer:
     BigDecimal tott2 = new BigDecimal("101.77");
     BigDecimal tott3 = new BigDecimal("102.77");
     BigDecimal tott4 = new BigDecimal("103.77");
+    BigDecimal tott5 = new BigDecimal("104.77");
+    BigDecimal tott6 = new BigDecimal("105.77");
+    BigDecimal tott7 = new BigDecimal("106.77");
     try {
       Thread.sleep(1000L);
     } catch (Exception ex) {
@@ -54,6 +57,12 @@ to trigger this live test type in kafka-console-producer:
       this.bnkPaymJsnSrv.mkTst3(pBnkPayJsn);
     } else if (pBnkPayJsn.getTotalAmount().equals(tott4)) {
       this.bnkPaymJsnSrv.mkTst4(pBnkPayJsn);
+    } else if (pBnkPayJsn.getTotalAmount().equals(tott5)) {
+      this.bnkPaymJsnSrv.mkTst3(pBnkPayJsn);
+    } else if (pBnkPayJsn.getTotalAmount().equals(tott6)) {
+      this.bnkPaymJsnSrv.mkTst4(pBnkPayJsn);
+    } else if (pBnkPayJsn.getTotalAmount().equals(tott7)) {
+      this.bnkPaymJsnSrv.mkTst5(pBnkPayJsn);
     } else {
       this.bnkPaymJsnSrv.mkPaymentWrk(pBnkPayJsn);
     }
