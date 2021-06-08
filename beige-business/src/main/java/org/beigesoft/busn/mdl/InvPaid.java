@@ -4,11 +4,12 @@ import java.math.BigDecimal;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
-import javax.persistence.CascadeType;
+//import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.validation.constraints.NotNull;
 
-//good approach for registering total payment for immutable (at current phase) invoice
+//good approach for registering total payment for immutable
+//(at current phase) invoice
 @Entity
 public class InvPaid extends AEntIdLnga {
 
@@ -32,7 +33,7 @@ public class InvPaid extends AEntIdLnga {
    * <p>Setter for inv.</p>
    * @param pInv reference
    **/
-  public void setInv(Invoice pInv) {
+  public void setInv(final Invoice pInv) {
     this.inv = pInv;
   }
 
@@ -48,7 +49,7 @@ public class InvPaid extends AEntIdLnga {
    * <p>Setter for totPaid.</p>
    * @param pTotPaid reference
    **/
-  public void setTotPaid(BigDecimal pTotPaid) {
+  public void setTotPaid(final BigDecimal pTotPaid) {
     this.totPaid = pTotPaid;
   }
 }

@@ -37,7 +37,7 @@ public class BnkPaymJsnSrv {
 
   @Transactional(propagation = Propagation.REQUIRED,
     isolation = Isolation.READ_COMMITTED)
-  public void mkTst1(BnkPaymJsn pBnkPayJsn) throws Exception {
+  public void mkTst1(final BnkPaymJsn pBnkPayJsn) throws Exception {
     Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
     if (inv == null) {
       throw new Exception("Database is not populated for this test total "
@@ -62,7 +62,7 @@ public class BnkPaymJsnSrv {
 
   @Transactional(propagation = Propagation.REQUIRED,
     isolation = Isolation.SERIALIZABLE)
-  public void mkTst2(BnkPaymJsn pBnkPayJsn) throws Exception {
+  public void mkTst2(final BnkPaymJsn pBnkPayJsn) throws Exception {
     Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
     if (inv == null) {
       throw new Exception("Database is not populated for this test total "
@@ -87,7 +87,7 @@ public class BnkPaymJsnSrv {
 
   @Transactional(propagation = Propagation.REQUIRED,
     isolation = Isolation.READ_COMMITTED)
-  public void mkTst3(BnkPaymJsn pBnkPayJsn) throws Exception {
+  public void mkTst3(final BnkPaymJsn pBnkPayJsn) throws Exception {
     Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
     if (inv == null) {
       throw new Exception("Database is not populated for this test total "
@@ -118,7 +118,7 @@ public class BnkPaymJsnSrv {
 
   @Transactional(propagation = Propagation.REQUIRED,
     isolation = Isolation.SERIALIZABLE)
-  public void mkTst4(BnkPaymJsn pBnkPayJsn) throws Exception {
+  public void mkTst4(final BnkPaymJsn pBnkPayJsn) throws Exception {
     Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
     if (inv == null) {
       throw new Exception("Database is not populated for this test total "
@@ -149,7 +149,7 @@ public class BnkPaymJsnSrv {
 
   @Transactional(propagation = Propagation.REQUIRED,
     isolation = Isolation.READ_COMMITTED)
-  public void mkTst5(BnkPaymJsn pBnkPayJsn) throws Exception {
+  public void mkTst5(final BnkPaymJsn pBnkPayJsn) throws Exception {
     Invoice inv = this.invoiceRep.findByTotLk(pBnkPayJsn.getTotalAmount());
     if (inv == null) {
       throw new Exception("Database is not populated for this test total "
@@ -180,7 +180,7 @@ public class BnkPaymJsnSrv {
 
   @Transactional(propagation = Propagation.REQUIRED,
     isolation = Isolation.READ_COMMITTED)
-  public void mkPaymentWrk(BnkPaymJsn pBnkPayJsn) throws Exception {
+  public void mkPaymentWrk(final BnkPaymJsn pBnkPayJsn) throws Exception {
     BnkPaym bp = new BnkPaym();
     bp.setTot(pBnkPayJsn.getTotalAmount());
     bp.setPaymId(pBnkPayJsn.getPaymId());
@@ -192,7 +192,7 @@ public class BnkPaymJsnSrv {
         + pBnkPayJsn.getCustmId() + ", cnm=" + pBnkPayJsn.getCustmNme());
     } else {
       bp.setInvc(invOp.get());
-      if (!bp.getInvc().getId().equals(pBnkPayJsn.getCustmId())) {
+      if (!bp.getInvc().getCustm().getId().equals(pBnkPayJsn.getCustmId())) {
         this.logger.error("Customer TIN doesn't match to invoice's one #"
           + pBnkPayJsn.getCustmId());
         bp.setDscrErr("!cid=" + pBnkPayJsn.getCustmId() + ", cnm="

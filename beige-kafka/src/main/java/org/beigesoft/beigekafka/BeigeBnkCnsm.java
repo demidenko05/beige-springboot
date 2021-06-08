@@ -28,15 +28,8 @@ public class BeigeBnkCnsm {
   }
 
 
-  public void mkPayment(BnkPaymJsn pBnkPayJsn) throws Exception {
-/*
-100.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
-         - beige-bservice changes invoice.descr
-         - they use read-committed level
-to trigger this live test type in kafka-console-producer:
->{"paymId":"1","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"1","totalAmount":"100.77"}
-... see README.txt
-*/
+  public void mkPayment(final BnkPaymJsn pBnkPayJsn) throws Exception {
+    //see README.txt
     BigDecimal tott1 = new BigDecimal("100.77");
     BigDecimal tott2 = new BigDecimal("101.77");
     BigDecimal tott3 = new BigDecimal("102.77");
@@ -81,7 +74,7 @@ to trigger this live test type in kafka-console-producer:
    * <p>Setter for bnkPaymJsnSrv.</p>
    * @param pBnkPaymJsnSrv reference
    **/
-  public void setBnkPaymJsnSrv(BnkPaymJsnSrv pBnkPaymJsnSrv) {
+  public void setBnkPaymJsnSrv(final BnkPaymJsnSrv pBnkPaymJsnSrv) {
     this.bnkPaymJsnSrv = pBnkPaymJsnSrv;
   }
 }

@@ -18,14 +18,14 @@ public abstract class AEntIdLng extends AEntBs<Long> {
    * @return Long
    **/
   @Override
-  //@Nullable nether!
+  //@Nullable never!
   public Long getId() {
     return this.id;
   }
 
   //Hibernate_User_Guide.html#naturalid
   @Override
-  public boolean equals(Object pOther) {
+  public boolean equals(final Object pOther) {
     if (this == pOther) {
       return true;
     }

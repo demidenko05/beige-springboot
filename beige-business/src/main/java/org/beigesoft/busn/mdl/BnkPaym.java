@@ -86,7 +86,7 @@ public class BnkPaym extends AEntIdLnga {
    * <p>Setter for dscrErr.</p>
    * @param pDscrErr reference
    **/
-  public void setDscrErr(String pDscrErr) {
+  public void setDscrErr(final String pDscrErr) {
     this.dscrErr = pDscrErr;
   }
 }

@@ -34,15 +34,10 @@ public class TstEagerQuSrv {
   private CustmRep custmRep;
 
   //populate DB wth sample data for live tests:
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+  @Transactional(propagation = Propagation.REQUIRED,
+    isolation = Isolation.READ_COMMITTED)
   public void populDb() throws Exception {
-/*
-100.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
-         - beige-bservice changes invoice.descr
-         - they use read-committed level
-to trigger this live test type in kafka-console-producer:
->{"paymId":"1","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"1","totalAmount":"100.77"}
-*/
+    //see README.txt
     BigDecimal tot = new BigDecimal("100.77");
     Invoice inv = findInvoice(tot);
     if (inv == null) {
@@ -52,37 +47,18 @@ to trigger this live test type in kafka-console-producer:
     }
     Custm custm = inv.getCustm();
     Itm itm = inv.getItsLns().get(0).getItm();
-/*101.77 - beige-kafka (after saving bank payment) in the same transaction changes invoice.totalPaid
-         - beige-bservice changes invoice.descr
-         - they use SERIALIZABLE level
-to trigger this live test type in kafka-console-producer:
->{"paymId":"2","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"2","totalAmount":"101.77"}
-*/
     tot = new BigDecimal("101.77");
     inv = findInvoice(tot);
     if (inv == null) {
       inv = createInv2(custm, new Itm[] {itm}, new BigDecimal[] {tot});
       inv = saveInvoice(inv);
     }
-/*102.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid
-         - beige-bservice changes invoice.descr and invoice.totalPaid
-         - they use read-committed level
-to trigger this live test type in kafka-console-producer:
->{"paymId":"2","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"2","totalAmount":"102.77"}
-*/
     tot = new BigDecimal("102.77");
     inv = findInvoice(tot);
     if (inv == null) {
       inv = createInv2(custm, new Itm[] {itm}, new BigDecimal[] {tot});
       inv = saveInvoice(inv);
     }
-/*
-103.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid
-         - beige-bservice changes invoice.descr and invoice.totalPaid
-         - they use SERIALIZABLE level
-to trigger this live test type in kafka-console-producer:
->{"paymId":"3","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"3","totalAmount":"103.77"}
- */
     tot = new BigDecimal("103.77");
     inv = findInvoice(tot);
     if (inv == null) {
@@ -112,7 +88,8 @@ to trigger this live test type in kafka-console-producer:
     }
   }
 
-  public Invoice createInv(long pCustId, String pCustNm, String[] pItmsNms, BigDecimal[] pPris) {
+  public Invoice createInv(final long pCustId, final String pCustNm,
+    final String[] pItmsNms, final BigDecimal[] pPris) {
     Custm cust = new Custm();
     cust.setId(pCustId);
     cust.setNme(pCustNm);
@@ -133,7 +110,8 @@ to trigger this live test type in kafka-console-producer:
     return inv;
   }
 
-  public Invoice createInv2(Custm pCust, Itm[] pItms, BigDecimal[] pPris) {
+  public Invoice createInv2(final Custm pCust, final Itm[] pItms,
+    final BigDecimal[] pPris) {
     Invoice inv = new Invoice();
     inv.setCustm(pCust);
     for (int i = 0; i < pItms.length; i++) {
@@ -149,8 +127,9 @@ to trigger this live test type in kafka-console-producer:
     return inv;
   }
 
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-  public Invoice saveInvoice(Invoice pInv) throws Exception {
+  @Transactional(propagation = Propagation.REQUIRED,
+    isolation = Isolation.READ_COMMITTED)
+  public Invoice saveInvoice(final Invoice pInv) throws Exception {
     pInv.setCustm(this.custmRep.save(pInv.getCustm()));
     for (InvLn il : pInv.getItsLns()) {
       il.setItm(this.itmRep.save(il.getItm()));
@@ -158,13 +137,15 @@ to trigger this live test type in kafka-console-producer:
     return this.invoiceRep.save(pInv);
   }
 
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-  public Invoice findInvoice(BigDecimal pTot) throws Exception {
+  @Transactional(propagation = Propagation.REQUIRED,
+    isolation = Isolation.READ_COMMITTED)
+  public Invoice findInvoice(final BigDecimal pTot) throws Exception {
     return this.invoiceRep.findByTot(pTot);
   }
 
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-  public void deleteInvoice(Invoice pInv) throws Exception {
+  @Transactional(propagation = Propagation.REQUIRED,
+    isolation = Isolation.READ_COMMITTED)
+  public void deleteInvoice(final Invoice pInv) throws Exception {
     this.invoiceRep.delete(pInv);
     this.custmRep.delete(pInv.getCustm());
     for (InvLn il : pInv.getItsLns()) {
@@ -175,8 +156,9 @@ to trigger this live test type in kafka-console-producer:
     }*/
   }
 
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-  public InvLn retInvLn(Long pId) throws Exception {
+  @Transactional(propagation = Propagation.REQUIRED,
+    isolation = Isolation.READ_COMMITTED)
+  public InvLn retInvLn(final Long pId) throws Exception {
     Optional<InvLn> ilOp = this.invLnRep.findById(pId);
     if (!ilOp.isPresent()) {
       throw new Exception("There is no invoice line # " + pId);
@@ -184,8 +166,9 @@ to trigger this live test type in kafka-console-producer:
     return ilOp.get();
   }
 
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-  public InvLn retInvLnCustm(Long pId) throws Exception {
+  @Transactional(propagation = Propagation.REQUIRED,
+    isolation = Isolation.READ_COMMITTED)
+  public InvLn retInvLnCustm(final Long pId) throws Exception {
     return this.invLnRep.findByIdCustm(pId);
   }
 
@@ -203,7 +186,7 @@ to trigger this live test type in kafka-console-producer:
    * <p>Setter for invoiceRep.</p>
    * @param pInvoiceRep reference
    **/
-  public void setInvoiceRep(InvoiceRep pInvoiceRep) {
+  public void setInvoiceRep(final InvoiceRep pInvoiceRep) {
     this.invoiceRep = pInvoiceRep;
   }
 
@@ -219,7 +202,7 @@ to trigger this live test type in kafka-console-producer:
    * <p>Setter for invLnRep.</p>
    * @param pInvLnRep reference
    **/
-  public void setInvLnRep(InvLnRep pInvLnRep) {
+  public void setInvLnRep(final InvLnRep pInvLnRep) {
     this.invLnRep = pInvLnRep;
   }
 
@@ -235,7 +218,7 @@ to trigger this live test type in kafka-console-producer:
    * <p>Setter for itmRep.</p>
    * @param pItmRep reference
    **/
-  public void setItmRep(ItmRep pItmRep) {
+  public void setItmRep(final ItmRep pItmRep) {
     this.itmRep = pItmRep;
   }
 
@@ -251,7 +234,7 @@ to trigger this live test type in kafka-console-producer:
    * <p>Setter for custmRep.</p>
    * @param pCustmRep reference
    **/
-  public void setCustmRep(CustmRep pCustmRep) {
+  public void setCustmRep(final CustmRep pCustmRep) {
     this.custmRep = pCustmRep;
   }
 }

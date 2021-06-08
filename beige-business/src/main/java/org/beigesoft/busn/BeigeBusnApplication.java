@@ -25,7 +25,8 @@ public class BeigeBusnApplication {
     return (args) -> {
       for (String arg : args) {
         if (arg.contains("populDb")) {
-          this.logger.info("Try to populate DB with sample data. It must be in single transaction!!!");
+          this.logger.info(
+    "Try to populate DB with sample data. It must be in single transaction!!!");
           pTstEagerQuSrv.populDb();
           //transaction OK!
           return;

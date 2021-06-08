@@ -18,7 +18,9 @@ public abstract class AEntBs<ID> implements Serializable, Persistable<ID> {
   private long ver; //even immutable entities should have version
 
   //Return the flag in the implementation of Persistable.isNew()
-  //so that Spring Data repositories know whether to call EntityManager.persist() or ….merge()
+  //so that Spring Data repositories know whether
+  //to call EntityManager.persist() or ….merge()
+  //and generate insert or update
   @Transient
   @AccessType(AccessType.Type.PROPERTY)
   private boolean isNew = true;
@@ -28,7 +30,7 @@ public abstract class AEntBs<ID> implements Serializable, Persistable<ID> {
     return this.isNew;
   }
 
-  @PrePersist 
+  @PrePersist
   @PostLoad
   public void markNotNew() {
     this.isNew = false;

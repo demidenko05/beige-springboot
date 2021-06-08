@@ -1,13 +1,13 @@
 package org.beigesoft.bservice1;
 
 import org.beigesoft.busn.mdl.BnkPaymJsn;
-import org.beigesoft.busn.mdl.BnkPaym;
+//import org.beigesoft.busn.mdl.BnkPaym;
 import org.beigesoft.busn.mdl.Invoice;
 import org.beigesoft.busn.repo.InvoiceRep;
 import org.beigesoft.busn.repo.BnkPaymRep;
 
-import java.math.BigDecimal;
-import java.util.Optional;
+//import java.math.BigDecimal;
+//import java.util.Optional;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -30,11 +30,13 @@ public class BService1Srv {
   @Autowired
   private InvoiceRep invoiceRep;
 
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-  public void mkTst1(BnkPaymJsn pBnkPayJsn) throws Exception {
+  @Transactional(propagation = Propagation.REQUIRED,
+    isolation = Isolation.READ_COMMITTED)
+  public void mkTst1(final BnkPaymJsn pBnkPayJsn) throws Exception {
     Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
     if (inv == null) {
-      throw new Exception("Database is not populated for this test total " + pBnkPayJsn.getTotalAmount());
+      throw new Exception("Database is not populated for this test total "
+        + pBnkPayJsn.getTotalAmount());
     }
     inv.setDescr("BService1 " + new Date());
     this.invoiceRep.save(inv);
@@ -45,11 +47,13 @@ public class BService1Srv {
     }
   }
 
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-  public void mkTst2(BnkPaymJsn pBnkPayJsn) throws Exception {
+  @Transactional(propagation = Propagation.REQUIRED,
+    isolation = Isolation.SERIALIZABLE)
+  public void mkTst2(final BnkPaymJsn pBnkPayJsn) throws Exception {
     Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
     if (inv == null) {
-      throw new Exception("Database is not populated for this test total " + pBnkPayJsn.getTotalAmount());
+      throw new Exception("Database is not populated for this test total "
+        + pBnkPayJsn.getTotalAmount());
     }
     inv.setDescr("BService1 " + new Date());
     this.invoiceRep.save(inv);
@@ -60,11 +64,13 @@ public class BService1Srv {
     }
   }
 
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-  public void mkTst3(BnkPaymJsn pBnkPayJsn) throws Exception {
+  @Transactional(propagation = Propagation.REQUIRED,
+    isolation = Isolation.READ_COMMITTED)
+  public void mkTst3(final BnkPaymJsn pBnkPayJsn) throws Exception {
     Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
     if (inv == null) {
-      throw new Exception("Database is not populated for this test total " + pBnkPayJsn.getTotalAmount());
+      throw new Exception("Database is not populated for this test total "
+        + pBnkPayJsn.getTotalAmount());
     }
     inv.setDescr("BService1 " + new Date());
     inv.setTotPaid(this.bnkPaymRep.selectSumTot(inv));
@@ -80,11 +86,43 @@ public class BService1Srv {
     }
   }
 
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-  public void mkTst4(BnkPaymJsn pBnkPayJsn) throws Exception {
+  @Transactional(propagation = Propagation.REQUIRED,
+    isolation = Isolation.SERIALIZABLE)
+  public void mkTst4(final BnkPaymJsn pBnkPayJsn) throws Exception {
     Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
     if (inv == null) {
-      throw new Exception("Database is not populated for this test total " + pBnkPayJsn.getTotalAmount());
+      throw new Exception("Database is not populated for this test total "
+        + pBnkPayJsn.getTotalAmount());
+    }
+    inv.setDescr("BService1 " + new Date());
+    inv.setTotPaid(this.bnkPaymRep.selectSumTot(inv));
+    this.invoiceRep.save(inv);
+    logger.info("invoce.totPaid=" + inv.getTotPaid());
+    if (inv.getInvPaid() != null) {
+      logger.info("invoce.invPaid.totPaid=" + inv.getInvPaid().getTotPaid());
+    } else {
+      logger.info("invoce.invPaid=null");
+    }
+    this.bnkPaymRep.selectSumTot(inv);
+    try {
+      Thread.sleep(1000L);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED,
+    isolation = Isolation.SERIALIZABLE)
+  public void mkTst5(final BnkPaymJsn pBnkPayJsn) throws Exception {
+    Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
+    if (inv == null) {
+      throw new Exception("Database is not populated for this test total "
+        + pBnkPayJsn.getTotalAmount());
+    }
+    try {
+      Thread.sleep(1000L);
+    } catch (Exception ex) {
+      ex.printStackTrace();
     }
     if (inv.getInvPaid() != null) {
       logger.info("invoce.invPaid.totPaid=" + inv.getInvPaid().getTotPaid());
@@ -99,32 +137,9 @@ public class BService1Srv {
     }
   }
 
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-  public void mkTst5(BnkPaymJsn pBnkPayJsn) throws Exception {
-    Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
-    if (inv == null) {
-      throw new Exception("Database is not populated for this test total " + pBnkPayJsn.getTotalAmount());
-    }
-    try {
-      Thread.sleep(1000L);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    if (inv.getInvPaid() != null) {
-      logger.info("invoce.invPaid.totPaid=" + inv.getInvPaid().getTotPaid());
-    } else {
-      logger.info("invoce.invPaid=null");
-    }
-    this.bnkPaymRep.selectSumTot(inv);
-    try {
-      Thread.sleep(1000L);
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-  }
-
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-  public void mkTst6(BnkPaymJsn pBnkPayJsn) throws Exception {
+  @Transactional(propagation = Propagation.REQUIRED,
+    isolation = Isolation.READ_COMMITTED)
+  public void mkTst6(final BnkPaymJsn pBnkPayJsn) throws Exception {
     try {
       Thread.sleep(1000L);
     } catch (Exception ex) {
@@ -132,7 +147,8 @@ public class BService1Srv {
     }
     Invoice inv = this.invoiceRep.findByTot(pBnkPayJsn.getTotalAmount());
     if (inv == null) {
-      throw new Exception("Database is not populated for this test total " + pBnkPayJsn.getTotalAmount());
+      throw new Exception("Database is not populated for this test total "
+        + pBnkPayJsn.getTotalAmount());
     }
     if (inv.getInvPaid() != null) {
       logger.info("invoce.invPaid.totPaid=" + inv.getInvPaid().getTotPaid());

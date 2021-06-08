@@ -19,7 +19,7 @@ public class BnkPaymJsn {
    * <p>Getter for paymId.</p>
    * @return Long
    **/
-  public final Long getPaymId() {
+  public Long getPaymId() {
     return this.paymId;
   }
 
@@ -27,7 +27,7 @@ public class BnkPaymJsn {
    * <p>Setter for paymId.</p>
    * @param pPaymId reference
    **/
-  public final void setPaymId(final Long pPaymId) {
+  public void setPaymId(final Long pPaymId) {
     this.paymId = pPaymId;
   }
 
@@ -35,7 +35,7 @@ public class BnkPaymJsn {
    * <p>Getter for invoiceId.</p>
    * @return Long
    **/
-  public final Long getInvoiceId() {
+  public Long getInvoiceId() {
     return this.invoiceId;
   }
 
@@ -43,7 +43,7 @@ public class BnkPaymJsn {
    * <p>Setter for invoiceId.</p>
    * @param pInvoiceId reference
    **/
-  public final void setInvoiceId(final Long pInvoiceId) {
+  public void setInvoiceId(final Long pInvoiceId) {
     this.invoiceId = pInvoiceId;
   }
 
@@ -51,7 +51,7 @@ public class BnkPaymJsn {
    * <p>Getter for custmId.</p>
    * @return Long
    **/
-  public final Long getCustmId() {
+  public Long getCustmId() {
     return this.custmId;
   }
 
@@ -59,7 +59,7 @@ public class BnkPaymJsn {
    * <p>Setter for custmId.</p>
    * @param pCustmId reference
    **/
-  public final void setCustmId(final Long pCustmId) {
+  public void setCustmId(final Long pCustmId) {
     this.custmId = pCustmId;
   }
 
@@ -67,7 +67,7 @@ public class BnkPaymJsn {
    * <p>Getter for custmNme.</p>
    * @return String
    **/
-  public final String getCustmNme() {
+  public String getCustmNme() {
     return this.custmNme;
   }
 
@@ -75,7 +75,7 @@ public class BnkPaymJsn {
    * <p>Setter for custmNme.</p>
    * @param pCustmNme reference
    **/
-  public final void setCustmNme(final String pCustmNme) {
+  public void setCustmNme(final String pCustmNme) {
     this.custmNme = pCustmNme;
   }
 
@@ -83,7 +83,7 @@ public class BnkPaymJsn {
    * <p>Getter for totalAmount.</p>
    * @return BigDecimal
    **/
-  public final BigDecimal getTotalAmount() {
+  public BigDecimal getTotalAmount() {
     return this.totalAmount;
   }
 
@@ -91,7 +91,7 @@ public class BnkPaymJsn {
    * <p>Setter for totalAmount.</p>
    * @param pTotalAmount reference
    **/
-  public final void setTotalAmount(final BigDecimal pTotalAmount) {
+  public void setTotalAmount(final BigDecimal pTotalAmount) {
     this.totalAmount = pTotalAmount;
   }
 }

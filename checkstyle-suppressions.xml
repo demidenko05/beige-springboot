@@ -5,10 +5,16 @@
 "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
+  <suppress checks="JavadocVariable"
+    files=".+\.java"/>
   <suppress checks="MissingJavadocMethod"
-    files="*"/>
+    files=".+\.java"/>
   <suppress checks="DesignForExtension"
-    files="*"/>
+    files=".+\.java"/>
   <suppress checks="MagicNumberCheck"
-    files="TstCustmSrv"/>
+    files="TstCustmSrv|BnkPaymJsnSrv|"/>
+  <suppress checks="LineLength"
+    files="BeigeBusnApplicationTests"/>
+  <suppress checks="HideUtilityClassConstructor"
+    files="BeigeKafkaApplication|BeigeService1Application"/>
 </suppressions>

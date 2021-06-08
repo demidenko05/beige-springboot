@@ -8,10 +8,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @EnableTransactionManagement
-@ComponentScan(basePackages={"org.beigesoft"})
+@ComponentScan(basePackages = {"org.beigesoft"})
 public class BeigeKafkaApplication {
 
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     SpringApplication.run(BeigeKafkaApplication.class, args);
   }
 }

@@ -72,7 +72,6 @@ to trigger this live test type in kafka-console-producer:
 >{"paymId":"3","custmNme":"OOO berezka","custmId":"28200000192299","invoiceId":"3","totalAmount":"103.77"}
   org.postgresql.util.PSQLException: ERROR: could not serialize access due to read/write dependencies among transactions
   Detail: Reason code: Canceled on identification as a pivot, during write.
-TODO just report outdated PG13?
 
 104.77 - beige-kafka (after saving bank payment) in the same transaction changes InvPaid.totPaid, read-committed level - never fail
        - beige-bservice1 just reads invoce.invPaid.totPaid, SERIALIZABLE level
@@ -104,7 +103,7 @@ to trigger this live test type in kafka-console-producer:
   this test always gives up-to date readed data, e.g on 4-th invocation:
   beige-kafka: invPaid.totPaid=427.08
   beige-bservice1: invoce.invPaid.totPaid=427.08
-  but on 1-st invocation data outdated:
+  but on 1-st invocation data CAN BE outdated (MS WIN, PG13, probably Thread.sleep() is the reason, i.e. non-simultaneously?):
   beige-kafka: invPaid.totPaid=106.77
   beige-bservice1: invoce.invPaid=null
   
@@ -118,7 +117,7 @@ i.e. it reads up-to date data (that must be commited ealier), and it's the cheap
 
 To ensure that a report isn't outdated AT THE INVOCATION TIME in another transaction - only pessimistick locking work, serializable works only if reading transaction also writes.
 But this is seems to be excessive, because a report can be outdated at any moment.
-For this particular case ban-payment service should make/send the latest-updated report in another new transaction after registering the payment.
+For this particular case bank-payment service should make/send the latest-updated report in another new transaction after registering the payment.
 
 Optimistic locking, separating write access to entities and read-committed/uncommitted is reliable method.
 

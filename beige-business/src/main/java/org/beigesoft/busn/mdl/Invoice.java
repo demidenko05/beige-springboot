@@ -31,7 +31,8 @@ public class Invoice extends AEntIdLnga {
   private List<InvLn> itsLns = new ArrayList<>();
 
   //non-owned entity (invoice services must not change it)
-  @OneToOne(mappedBy = "inv", cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "inv", cascade = {CascadeType.MERGE},
+    fetch = FetchType.LAZY)
   private InvPaid invPaid;
 
   //Simple getters and setters:
@@ -47,7 +48,7 @@ public class Invoice extends AEntIdLnga {
    * <p>Setter for custm.</p>
    * @param pCustm reference
    **/
-  public void setCustm(Custm pCustm) {
+  public void setCustm(final Custm pCustm) {
     this.custm = pCustm;
   }
 
@@ -63,7 +64,7 @@ public class Invoice extends AEntIdLnga {
    * <p>Setter for tot.</p>
    * @param pTot reference
    **/
-  public void setTot(BigDecimal pTot) {
+  public void setTot(final BigDecimal pTot) {
     this.tot = pTot;
   }
 
@@ -127,7 +128,7 @@ public class Invoice extends AEntIdLnga {
    * <p>Setter for invPaid.</p>
    * @param pInvPaid reference
    **/
-  public void setInvPaid(InvPaid pInvPaid) {
+  public void setInvPaid(final InvPaid pInvPaid) {
     this.invPaid = pInvPaid;
   }
 }
